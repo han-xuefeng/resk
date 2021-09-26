@@ -1,7 +1,15 @@
 package main
 
-import "study-gin/resk/infra"
+import (
+	"github.com/tietang/props/ini"
+	"github.com/tietang/props/kvs"
+	_ "study-gin/resk"
+	"study-gin/resk/infra"
+)
 
 func main() {
-	infra.SystemRun()
+	file := kvs.GetCurrentFilePath("config.ini", 1)
+	conf := ini.NewIniFileConfigSource(file)
+	app := infra.New(conf)
+	app.Start()
 }
