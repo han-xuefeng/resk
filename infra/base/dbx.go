@@ -19,7 +19,7 @@ type DbxDatabaseStarter struct {
 	infra.BaseStarter
 }
 
-func (s *DbxDatabaseStarter) Setup(ctx infra.StarterContent) {
+func (s *DbxDatabaseStarter) Setup(ctx infra.StarterContext) {
 	conf := Props()
 	settings := dbx.Settings{}
 		kvs.Unmarshal(conf, &settings, "mysql")

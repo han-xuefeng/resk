@@ -27,7 +27,7 @@ type ValidatorStarter struct {
 	infra.BaseStarter
 }
 
-func (v *ValidatorStarter) Init(ctx infra.StarterContent) {
+func (v *ValidatorStarter) Init(ctx infra.StarterContext) {
 	validate = validator.New()
 
 	//创建消息国际化通用翻译器

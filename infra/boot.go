@@ -5,15 +5,15 @@ import (
 )
 
 type BootApplication struct {
-	conf kvs.ConfigSource
-	starterContent StarterContent
+	conf           kvs.ConfigSource
+	starterContent StarterContext
 }
 
 
 func New (conf kvs.ConfigSource) *BootApplication {
 	b := &BootApplication{
-		conf: conf,
-		starterContent: StarterContent{},
+		conf:           conf,
+		starterContent: StarterContext{},
 	}
 	b.starterContent[KeyProps] = conf
 	return b

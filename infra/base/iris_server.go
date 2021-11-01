@@ -19,19 +19,19 @@ type IrisServerStarter struct {
 	infra.BaseStarter
 }
 
-func (i *IrisServerStarter) Init(cxt infra.StarterContent) {
+func (i *IrisServerStarter) Init(cxt infra.StarterContext) {
 	irisApplication = iris.New()
 	logger := irisApplication.Logger()
 	logger.Install(logrus.StandardLogger())
 
 }
 
-func (i *IrisServerStarter) Setup(cxt infra.StarterContent) {
+func (i *IrisServerStarter) Setup(cxt infra.StarterContext) {
 	Iris().Get("/", func(context iris.Context) {
 		context.WriteString("我是一個測試")
 	})
 }
-func (i *IrisServerStarter) Start(cxt infra.StarterContent) {
+func (i *IrisServerStarter) Start(cxt infra.StarterContext) {
 	//把路由打印到控制台
 	routers := Iris().GetRoutes()
 	for _, router := range routers {

@@ -7,9 +7,9 @@ const (
 )
 
 // 基础资源上下文结构体
-type StarterContent map[string]interface{}
+type StarterContext map[string]interface{}
 
-func (s StarterContent)Props() kvs.ConfigSource {
+func (s StarterContext)Props() kvs.ConfigSource {
 	p := s[KeyProps]
 	if p == nil {
 		panic("配置还没有初始化")
@@ -20,17 +20,17 @@ func (s StarterContent)Props() kvs.ConfigSource {
 //基础资源启动器接口
 type Starter interface {
 	//1. 系统启动的时候，初始化一些基础资源
-	Init(StarterContent)
+	Init(StarterContext)
 	//2. 系统基础资源的安装
-	Setup(StarterContent)
+	Setup(StarterContext)
 	//3. 启动系统基础资源
-	Start(StarterContent)
+	Start(StarterContext)
 
 	//启动器是否阻塞
 	StartBlocking() bool
 
 	//4. 关闭资源
-	Stop(StarterContent)
+	Stop(StarterContext)
 }
 
 // 验证基础类是否实现了接口的所有方法
@@ -41,19 +41,19 @@ type BaseStarter struct {
 
 }
 
-func (b *BaseStarter) Init(StarterContent) {
+func (b *BaseStarter) Init(StarterContext) {
 
 }
-func (b *BaseStarter) Setup(StarterContent) {
+func (b *BaseStarter) Setup(StarterContext) {
 
 }
-func (b *BaseStarter) Start(StarterContent) {
+func (b *BaseStarter) Start(StarterContext) {
 
 }
 func (b *BaseStarter)StartBlocking() bool {
 	return false
 }
-func (b *BaseStarter) Stop(StarterContent) {
+func (b *BaseStarter) Stop(StarterContext) {
 
 }
 
@@ -78,7 +78,7 @@ func Register(s Starter) {
 
 // 系统资源的启动
 func SystemRun() {
-	ctx := StarterContent{}
+	ctx := StarterContext{}
 	for _, starter := range StarterRegister.AllStarters() {
 		starter.Init(ctx)
 	}
