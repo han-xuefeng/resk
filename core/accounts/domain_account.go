@@ -175,6 +175,24 @@ func (domain *accountDomain) GetEnvelopeAccountByUserId(userId string) *services
 
 }
 
+func (domain *accountDomain) GetAccountByUserIdAndType(userId string, accountType services.AccountType) *services.AccountDTO {
+	accountDao := AccountDao{}
+	var account *Account
+
+	err := base.Tx(func(runner *dbx.TxRunner) error {
+		accountDao.runner = runner
+		account = accountDao.GetByUserId(userId, int(accountType))
+		return nil
+	})
+	if err != nil {
+		return nil
+	}
+	if account == nil {
+		return nil
+	}
+	return account.ToDTO()
+}
+
 //根据流水ID来查询账户流水
 func (domain *accountDomain) GetAccountLog(logNo string) *services.AccountLogDTO {
 	dao := AccountLogDao{}
