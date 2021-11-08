@@ -1,7 +1,9 @@
 package infra
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/tietang/props/kvs"
+	"reflect"
 	"sort"
 )
 
@@ -88,8 +90,10 @@ func (s Starters) Less(i, j int) bool {
 }
 
 // 启动器注册器
+// 全局只有一个
 type starterRegister struct {
-	Starters []Starter
+	nonBlockingStarters []Starter
+	blockingStarters    []Starter
 }
 
 func SortStarters() {
@@ -101,12 +105,22 @@ func GetStarters() []Starter {
 	return StarterRegister.AllStarters()
 }
 
-func (r *starterRegister) Register(s Starter) {
-	r.Starters = append(r.Starters, s)
+// 启动器注册器   把阻塞的启动器放到最后启动
+func (r *starterRegister) Register(starter Starter) {
+	if starter.StartBlocking() {
+		r.blockingStarters = append(r.blockingStarters, starter)
+	} else {
+		r.nonBlockingStarters = append(r.nonBlockingStarters, starter)
+	}
+	typ := reflect.TypeOf(starter)
+	log.Infof("Register starter: %s", typ.String())
 }
 
 func (r *starterRegister) AllStarters() []Starter {
-	return r.Starters
+	starters := make([]Starter, 0)
+	starters = append(starters, r.nonBlockingStarters...)
+	starters = append(starters, r.blockingStarters...)
+	return starters
 }
 
 var StarterRegister *starterRegister = new(starterRegister)

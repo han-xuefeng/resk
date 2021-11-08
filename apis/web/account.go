@@ -14,7 +14,6 @@ func init()  {
 }
 
 type AccountApi struct {
-	service services.AccountService
 }
 
 func (a *AccountApi) Init() {
@@ -22,7 +21,7 @@ func (a *AccountApi) Init() {
 	groupRouter.Post("/create", createHandler)
 	routers := base.Iris().GetRoutes()
 	for _, router := range routers {
-		fmt.Println(router.Path)
+		fmt.Println("iris路由:"+router.Path)
 	}
 }
 

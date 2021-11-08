@@ -7,6 +7,7 @@ import (
 )
 
 type BootApplication struct {
+	IsTest     bool
 	conf           kvs.ConfigSource
 	starterCtx StarterContext
 }
