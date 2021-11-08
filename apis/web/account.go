@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/sirupsen/logrus"
 	"study-gin/resk/infra"
@@ -19,10 +18,6 @@ type AccountApi struct {
 func (a *AccountApi) Init() {
 	groupRouter := base.Iris().Party("/v1/account")
 	groupRouter.Post("/create", createHandler)
-	routers := base.Iris().GetRoutes()
-	for _, router := range routers {
-		fmt.Println("iris路由:"+router.Path)
-	}
 }
 
 func createHandler(ctx iris.Context) {
