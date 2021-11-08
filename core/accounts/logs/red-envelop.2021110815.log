@@ -1,0 +1,3 @@
+time="2021-11-08T15:09:07+08:00" level=info msg="[study-gin/resk/infra/base.(*DbxDatabaseStarter).Setup(base/dbx.go:32)] <nil>" func="study-gin/resk/infra/base.(*DbxDatabaseStarter).Setup" file="base/dbx.go:32"
+time="2021-11-08T15:38:04+08:00" level=info msg="[study-gin/resk/infra/base.(*DbxDatabaseStarter).Setup(base/dbx.go:32)] <nil>" func="study-gin/resk/infra/base.(*DbxDatabaseStarter).Setup" file="base/dbx.go:32"
+time="2021-11-08T15:38:05+08:00" level=error msg="[study-gin/resk/core/accounts.(*accountDomain).Transfer(accounts/domain_account.go:131)] 余额不足" func="study-gin/resk/core/accounts.(*accountDomain).Transfer" file="accounts/domain_account.go:131"

@@ -60,8 +60,9 @@ func (a *accountService) CreateAccount(dto services.AccountCreatedDTO) (*service
 }
 
 func (a *accountService) Transfer(dto services.AccountTransferDTO) (services.TransferedStatus, error) {
-	// 验证参数
+	//验证参数
 	domain := accountDomain{}
+	//验证输入参数
 	err := base.Validate().Struct(&dto)
 	if err != nil {
 		_, ok := err.(*validator.InvalidValidationError)
@@ -76,7 +77,7 @@ func (a *accountService) Transfer(dto services.AccountTransferDTO) (services.Tra
 		}
 		return services.TransferedStatusFailure, err
 	}
-	// 执行转账业务
+	//执行转账逻辑
 	amount, err := decimal.NewFromString(dto.AmountStr)
 	if err != nil {
 		return services.TransferedStatusFailure, err
@@ -95,17 +96,16 @@ func (a *accountService) Transfer(dto services.AccountTransferDTO) (services.Tra
 	}
 
 	status, err := domain.Transfer(dto)
-	if status == services.TransferedStatusSuccess {
-		backwardDto := dto
-		backwardDto.TradeBody = dto.TradeTarget
-		backwardDto.TradeTarget = dto.TradeBody
-		backwardDto.ChangeType = -dto.ChangeType
-		backwardDto.ChangeFlag = -dto.ChangeFlag
-		status, err := domain.Transfer(backwardDto)
-		return status, err
-	}
+	//if status == services.TransferedStatusSuccess {
+	//	backwardDto := dto
+	//	backwardDto.TradeBody = dto.TradeTarget
+	//	backwardDto.TradeTarget = dto.TradeBody
+	//	backwardDto.ChangeType = -dto.ChangeType
+	//	backwardDto.ChangeFlag = -dto.ChangeFlag
+	//	status, err := domain.Transfer(backwardDto)
+	//	return status, err
+	//}
 	return status, err
-
 }
 
 func (a *accountService) StoreValue(dto services.AccountTransferDTO) (services.TransferedStatus, error) {
