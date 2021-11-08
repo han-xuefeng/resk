@@ -8,9 +8,18 @@ import (
 	"github.com/sirupsen/logrus"
 	"study-gin/resk/infra/base"
 	"study-gin/resk/services"
+	"sync"
 )
 
 var _ services.AccountService = new(accountService)
+var once sync.Once
+
+func init()  {
+	once.Do(func() {
+		services.IAccountService = new(accountService)
+	})
+}
+
 
 type accountService struct {
 
