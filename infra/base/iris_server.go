@@ -12,26 +12,28 @@ import (
 var irisApplication *iris.Application
 
 func Iris() *iris.Application {
-	return initIris()
+	Check(irisApplication)
+	return irisApplication
 }
 
 type IrisServerStarter struct {
 	infra.BaseStarter
 }
 
-func (i *IrisServerStarter) Init(cxt infra.StarterContext) {
+func (i *IrisServerStarter) Init(ctx infra.StarterContext) {
 	irisApplication = iris.New()
 	logger := irisApplication.Logger()
 	logger.Install(logrus.StandardLogger())
 
 }
 
-func (i *IrisServerStarter) Setup(cxt infra.StarterContext) {
-	Iris().Get("/", func(context iris.Context) {
-		context.WriteString("我是一個測試")
-	})
+func (i *IrisServerStarter) Setup(ctx infra.StarterContext) {
+
 }
-func (i *IrisServerStarter) Start(cxt infra.StarterContext) {
+func (i *IrisServerStarter) Start(ctx infra.StarterContext) {
+	//和logrus日志级别保持一致
+	Iris().Logger().SetLevel(ctx.Props().GetDefault("log.level", "info"))
+
 	//把路由打印到控制台
 	routers := Iris().GetRoutes()
 	for _, router := range routers {

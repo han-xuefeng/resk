@@ -1,6 +1,8 @@
 package resk
 
 import (
+	_ "study-gin/resk/apis/web"
+	_ "study-gin/resk/core/accounts"
 	"study-gin/resk/infra"
 	"study-gin/resk/infra/base"
 )
@@ -11,4 +13,5 @@ func init() {
 	infra.Register(&base.DbxDatabaseStarter{})
 	infra.Register(&base.ValidatorStarter{})
 	infra.Register(&base.IrisServerStarter{})
+	infra.Register(&infra.WebApiStarter{})
 }

@@ -1,11 +1,17 @@
 package web
 
 import (
+	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/sirupsen/logrus"
+	"study-gin/resk/infra"
 	"study-gin/resk/infra/base"
 	"study-gin/resk/services"
 )
+
+func init()  {
+	infra.RegisterApi(new(AccountApi))
+}
 
 type AccountApi struct {
 	service services.AccountService
@@ -13,7 +19,11 @@ type AccountApi struct {
 
 func (a *AccountApi) Init() {
 	groupRouter := base.Iris().Party("/v1/account")
-	groupRouter.Post("create", createHandler)
+	groupRouter.Post("/create", createHandler)
+	routers := base.Iris().GetRoutes()
+	for _, router := range routers {
+		fmt.Println(router.Path)
+	}
 }
 
 func createHandler(ctx iris.Context) {
