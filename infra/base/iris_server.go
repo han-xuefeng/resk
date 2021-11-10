@@ -38,7 +38,7 @@ func (i *IrisServerStarter) Start(ctx infra.StarterContext) {
 	//把路由打印到控制台
 	routers := Iris().GetRoutes()
 	for _, router := range routers {
-		logrus.Info(router.Trace)
+		logrus.Info(router.Trace())
 	}
 
 	port := Props().GetDefault("app.server.port", "18080")
