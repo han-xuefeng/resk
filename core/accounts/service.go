@@ -28,21 +28,10 @@ type accountService struct {
 func (a *accountService) CreateAccount(dto services.AccountCreatedDTO) (*services.AccountDTO, error) {
 	domain := accountDomain{}
 	//验证输入参数
-	err := base.Validate().Struct(&dto)
-	if err != nil {
-		_, ok := err.(*validator.InvalidValidationError)
-		if ok {
-			logrus.Error("验证错误", err)
-		}
-		errs, ok := err.(validator.ValidationErrors)
-		if ok {
-			for _, e := range errs {
-				logrus.Error(e.Translate(base.Transtate()))
-			}
-		}
+	//验证输入参数
+	if err := base.ValidateStruct(&dto); err != nil {
 		return nil, err
 	}
-
 	// 验证账户是否存在和幂等性
 	acc := domain.GetAccountByUserIdAndType(dto.UserId, services.AccountType(dto.AccountType))
 

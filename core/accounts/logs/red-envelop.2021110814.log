@@ -1,1 +1,0 @@
-time="2021-11-08T14:55:38+08:00" level=info msg="[study-gin/resk/infra/base.(*DbxDatabaseStarter).Setup(base/dbx.go:32)] <nil>" func="study-gin/resk/infra/base.(*DbxDatabaseStarter).Setup" file="base/dbx.go:32"

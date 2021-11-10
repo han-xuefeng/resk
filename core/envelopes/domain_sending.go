@@ -66,7 +66,7 @@ func (d *goodsDomain) SendOut(goods services.RedEnvelopeGoodsDTO) (activity *ser
 		if status == services.TransferedStatusSuccess {
 			return nil
 		}
-		return nil
+		return err
 	})
 	if err != nil {
 		return nil, err
@@ -74,5 +74,5 @@ func (d *goodsDomain) SendOut(goods services.RedEnvelopeGoodsDTO) (activity *ser
 	//扣减金额没有问题，返回活动
 
 	activity.RedEnvelopeGoodsDTO = *d.RedEnvelopeGoods.ToDTO()
-	return
+	return activity, err
 }
