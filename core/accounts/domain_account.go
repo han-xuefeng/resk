@@ -1,6 +1,7 @@
 package accounts
 
 import (
+	"context"
 	"errors"
 	"github.com/segmentio/ksuid"
 	"github.com/shopspring/decimal"
@@ -16,48 +17,52 @@ type accountDomain struct {
 	accountLog AccountLog
 }
 
+func NewAccountDomain() * accountDomain {
+	return &accountDomain{}
+}
+
 // createAccountLogNo 创建logNo的逻辑
-func (domain *accountDomain) createAccountLogNo() {
-	domain.accountLog.LogNo = ksuid.New().Next().String()
+func (a *accountDomain) createAccountLogNo() {
+	a.accountLog.LogNo = ksuid.New().Next().String()
 }
 
 // createAccountNo 生成accountNo的逻辑
-func (domain *accountDomain) createAccountNo() {
-	domain.account.AccountNo = ksuid.New().Next().String()
+func (a *accountDomain) createAccountNo() {
+	a.account.AccountNo = ksuid.New().Next().String()
 }
 
 // 创建账户流水的记录
-func (domain *accountDomain) createAccountLog() {
-	domain.accountLog = AccountLog{}
-	domain.createAccountLogNo()
-	domain.accountLog.TradeNo = domain.accountLog.LogNo
+func (a *accountDomain) createAccountLog() {
+	a.accountLog = AccountLog{}
+	a.createAccountLogNo()
+	a.accountLog.TradeNo = a.accountLog.LogNo
 
-	domain.accountLog.AccountNo = domain.account.AccountNo
-	domain.accountLog.UserId = domain.account.UserId
-	domain.accountLog.Username = domain.account.Username.String
+	a.accountLog.AccountNo = a.account.AccountNo
+	a.accountLog.UserId = a.account.UserId
+	a.accountLog.Username = a.account.Username.String
 
-	domain.accountLog.TargetAccountNo = domain.account.AccountNo
-	domain.accountLog.TargetUserId = domain.account.UserId
-	domain.accountLog.TargetUsername = domain.account.Username.String
+	a.accountLog.TargetAccountNo = a.account.AccountNo
+	a.accountLog.TargetUserId = a.account.UserId
+	a.accountLog.TargetUsername = a.account.Username.String
 
-	domain.accountLog.Amount = domain.account.Balance
-	domain.accountLog.Balance = domain.account.Balance
+	a.accountLog.Amount = a.account.Balance
+	a.accountLog.Balance = a.account.Balance
 
-	domain.accountLog.Decs = "账户创建"
-	domain.accountLog.ChangeType = services.AccountCreated
-	domain.accountLog.ChangeFlag = services.FlagAccountCreated
+	a.accountLog.Decs = "账户创建"
+	a.accountLog.ChangeType = services.AccountCreated
+	a.accountLog.ChangeFlag = services.FlagAccountCreated
 }
 
 //账户创建的业务逻辑
-func (domain *accountDomain) Create(
+func (a *accountDomain) Create(
 	dto services.AccountDTO) (*services.AccountDTO, error) {
 	//创建账户持久化对象
-	domain.account = Account{}
-	domain.account.FromDTO(&dto)
-	domain.createAccountNo()
-	domain.account.Username.Valid = true
+	a.account = Account{}
+	a.account.FromDTO(&dto)
+	a.createAccountNo()
+	a.account.Username.Valid = true
 	//创建账户流水持久化对象
-	domain.createAccountLog()
+	a.createAccountLog()
 	accountDao := AccountDao{}
 	accountLogDao := AccountLogDao{}
 	var rdto *services.AccountDTO
@@ -65,7 +70,7 @@ func (domain *accountDomain) Create(
 		accountDao.runner = runner
 		accountLogDao.runner = runner
 		//插入账户数据
-		id, err := accountDao.Insert(&domain.account)
+		id, err := accountDao.Insert(&a.account)
 		if err != nil {
 			return err
 		}
@@ -73,22 +78,32 @@ func (domain *accountDomain) Create(
 			return errors.New("创建账户失败")
 		}
 		//如果插入成功，就插入流水数据
-		id, err = accountLogDao.Insert(&domain.accountLog)
+		id, err = accountLogDao.Insert(&a.accountLog)
 		if err != nil {
 			return err
 		}
 		if id <= 0 {
 			return errors.New("创建账户流水失败")
 		}
-		domain.account = *accountDao.GetOne(domain.account.AccountNo)
+		a.account = *accountDao.GetOne(a.account.AccountNo)
 		return nil
 	})
-	rdto = domain.account.ToDTO()
+	rdto = a.account.ToDTO()
 	return rdto, err
 
 }
 
-func (domain *accountDomain) Transfer(dto services.AccountTransferDTO) (status services.TransferedStatus, err error) {
+func (a *accountDomain) Transfer(dto services.AccountTransferDTO) (status services.TransferedStatus, err error) {
+	err = base.Tx(func(runner *dbx.TxRunner) error {
+		ctx := base.WithValueContext(context.Background(), runner)
+		status, err = a.TransferWithContextTx(ctx, dto)
+		return err
+	})
+	return status, err
+}
+
+//必须在base.TX事务块里面运行，不能单独运行
+func (a *accountDomain) TransferWithContextTx(ctx context.Context, dto services.AccountTransferDTO) (status services.TransferedStatus, err error) {
 	//如果交易变化是支出，修正amount
 	amount := dto.Amount
 	if dto.ChangeFlag == services.FlagTransferOut {
@@ -96,12 +111,12 @@ func (domain *accountDomain) Transfer(dto services.AccountTransferDTO) (status s
 	}
 
 	//创建账户流水记录
-	domain.accountLog = AccountLog{}
-	domain.accountLog.FromTransferDTO(&dto)
-	domain.createAccountLogNo()
+	a.accountLog = AccountLog{}
+	a.accountLog.FromTransferDTO(&dto)
+	a.createAccountLogNo()
 	//检查余额是否足够和更新余额：通过乐观锁来验证，更新余额的同时来验证余额是否足够
 	//更新成功后，写入流水记录
-	err = base.Tx(func(runner *dbx.TxRunner) error {
+	err = base.ExecuteContext(ctx, func(runner *dbx.TxRunner) error {
 		accountDao := AccountDao{runner: runner}
 		accountLogDao := AccountLogDao{runner: runner}
 
@@ -118,9 +133,9 @@ func (domain *accountDomain) Transfer(dto services.AccountTransferDTO) (status s
 		if account == nil {
 			return errors.New("账户出错")
 		}
-		domain.account = *account
-		domain.accountLog.Balance = domain.account.Balance
-		id, err := accountLogDao.Insert(&domain.accountLog)
+		a.account = *account
+		a.accountLog.Balance = a.account.Balance
+		id, err := accountLogDao.Insert(&a.accountLog)
 		if err != nil || id <= 0 {
 			status = services.TransferedStatusFailure
 			return errors.New("账户流水创建失败")
@@ -137,7 +152,7 @@ func (domain *accountDomain) Transfer(dto services.AccountTransferDTO) (status s
 }
 
 //根据账户编号来查询账户信息
-func (domain *accountDomain) GetAccount(accountNo string) *services.AccountDTO {
+func (a *accountDomain) GetAccount(accountNo string) *services.AccountDTO {
 	accountDao := AccountDao{}
 	var account *Account
 
@@ -156,7 +171,7 @@ func (domain *accountDomain) GetAccount(accountNo string) *services.AccountDTO {
 }
 
 //根据用户ID来查询红包账户信息
-func (domain *accountDomain) GetEnvelopeAccountByUserId(userId string) *services.AccountDTO {
+func (a *accountDomain) GetEnvelopeAccountByUserId(userId string) *services.AccountDTO {
 	accountDao := AccountDao{}
 	var account *Account
 
@@ -175,7 +190,7 @@ func (domain *accountDomain) GetEnvelopeAccountByUserId(userId string) *services
 
 }
 
-func (domain *accountDomain) GetAccountByUserIdAndType(userId string, accountType services.AccountType) *services.AccountDTO {
+func (a *accountDomain) GetAccountByUserIdAndType(userId string, accountType services.AccountType) *services.AccountDTO {
 	accountDao := AccountDao{}
 	var account *Account
 
@@ -194,7 +209,7 @@ func (domain *accountDomain) GetAccountByUserIdAndType(userId string, accountTyp
 }
 
 //根据流水ID来查询账户流水
-func (domain *accountDomain) GetAccountLog(logNo string) *services.AccountLogDTO {
+func (a *accountDomain) GetAccountLog(logNo string) *services.AccountLogDTO {
 	dao := AccountLogDao{}
 	var log *AccountLog
 	err := base.Tx(func(runner *dbx.TxRunner) error {
@@ -213,7 +228,7 @@ func (domain *accountDomain) GetAccountLog(logNo string) *services.AccountLogDTO
 }
 
 //根据交易编号来查询账户流水
-func (domain *accountDomain) GetAccountLogByTradeNo(tradeNo string) *services.AccountLogDTO {
+func (a *accountDomain) GetAccountLogByTradeNo(tradeNo string) *services.AccountLogDTO {
 	dao := AccountLogDao{}
 	var log *AccountLog
 	err := base.Tx(func(runner *dbx.TxRunner) error {

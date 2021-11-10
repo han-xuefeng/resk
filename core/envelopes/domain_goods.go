@@ -1,6 +1,7 @@
 package envelopes
 
 import (
+	"context"
 	"github.com/segmentio/ksuid"
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
@@ -38,24 +39,19 @@ func (d *goodsDomain) Create(goods services.RedEnvelopeGoodsDTO) {
 	d.createEnvelopeNo()
 }
 // 保存
-func (d *goodsDomain) Save() (id int64, err error) {
-	err = base.Tx(func(runner *dbx.TxRunner) error {
-		dao := RedEnvelopeGoodsDao{
-			runner: runner,
-		}
-		id , err =dao.Insert(&d.RedEnvelopeGoods)
-		if err != nil {
-			return err
-		}
-		return nil
+func (d *goodsDomain) Save(ctx context.Context) (id int64, err error) {
+	err = base.ExecuteContext(ctx, func(runner *dbx.TxRunner) error {
+		dao := RedEnvelopeGoodsDao{runner: runner}
+		id, err = dao.Insert(&d.RedEnvelopeGoods)
+		return err
 	})
 	return id, err
 }
 
 // 创建对象并且保存
-func (d *goodsDomain) CreateAndSave(goods services.RedEnvelopeGoodsDTO) (id int64, err error) {
+func (d *goodsDomain) CreateAndSave(ctx context.Context, goods services.RedEnvelopeGoodsDTO) (id int64, err error) {
 	d.Create(goods)
-	return d.Save()
+	return d.Save(ctx)
 }
 
 //查询红包商品信息
