@@ -110,4 +110,20 @@ type RedEnvelopeItemDTO struct {
 	PayStatus    int             `json:"payStatus"`    //支付状态：未支付，支付中，已支付，支付失败
 	CreatedAt    time.Time       `json:"createdAt"`    //创建时间
 	UpdatedAt    time.Time       `json:"updatedAt"`    //更新时间
+	Desc         string          `json:"desc"`
+}
+
+func (r *RedEnvelopeItemDTO) CopeTo(item *RedEnvelopeItemDTO) {
+	item.ItemNo = r.ItemNo
+	item.EnvelopeNo = r.EnvelopeNo
+	item.RecvUsername = r.RecvUsername
+	item.RecvUserId = r.RecvUserId
+	item.Amount = r.Amount
+	item.Quantity = r.Quantity
+	item.RemainAmount = r.RemainAmount
+	item.AccountNo = r.AccountNo
+	item.PayStatus = r.PayStatus
+	item.CreatedAt = r.CreatedAt
+	item.UpdatedAt = r.UpdatedAt
+	item.Desc = r.Desc
 }
