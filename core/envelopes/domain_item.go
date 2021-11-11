@@ -53,6 +53,21 @@ func (d *itemDomain) GetOne(
 	return dto
 }
 
+func (d *itemDomain) GetByUser(userId, envelopeNo string) (dto *services.RedEnvelopeItemDTO) {
+	err := base.Tx(func(runner *dbx.TxRunner) error {
+		dao := RedEnvelopeItemDao{runner: runner}
+		po := dao.GetByUser(envelopeNo, userId)
+		if po != nil {
+			dto = po.ToDTO()
+		}
+		return nil
+	})
+	if err != nil {
+		return nil
+	}
+	return dto
+}
+
 //通过envelopeNo查询已抢到红包列表
 
 func (d *itemDomain) FindItems(envelopeNo string) (itemDtos []*services.RedEnvelopeItemDTO) {

@@ -40,3 +40,8 @@ const (
 	GeneralEnvelopeType = 1
 	LuckyEnvelopeType   = 2
 )
+
+var EnvelopeTypes = map[EnvelopeType]string{
+	GeneralEnvelopeType: "普通红包",
+	LuckyEnvelopeType:   "碰运气红包",
+}

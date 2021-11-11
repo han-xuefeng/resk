@@ -14,6 +14,7 @@ import (
 // 商品领域层
 type goodsDomain struct {
 	RedEnvelopeGoods
+	item itemDomain
 }
 // 生成一个红包编号
 func (d *goodsDomain) createEnvelopeNo() {

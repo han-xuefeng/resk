@@ -32,6 +32,20 @@ func (dao *RedEnvelopeItemDao) Insert(form *RedEnvelopeItem) (int64, error) {
 	return rs.LastInsertId()
 }
 
+func (dao *RedEnvelopeItemDao) GetByUser(envelopeNo, userId string) *RedEnvelopeItem {
+	item := RedEnvelopeItem{}
+	sql := "select * from red_envelope_item where envelope_no=? and recv_user_id=?"
+	ok, err := dao.runner.Get(&item, sql, envelopeNo, userId)
+	if !ok {
+		return nil
+	}
+	if err != nil {
+		logrus.Error(err)
+		return nil
+	}
+	return &item
+}
+
 func (dao *RedEnvelopeItemDao) FindItems(envelopeNo string) []*RedEnvelopeItem {
 	items := make([]*RedEnvelopeItem, 0)
 	sql := "select * from red_envelope_item where envelope_no=?"
