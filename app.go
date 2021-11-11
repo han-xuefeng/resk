@@ -1,6 +1,8 @@
 package resk
 
 import (
+	"study-gin/resk/apis/gorpc"
+	_ "study-gin/resk/apis/gorpc"
 	_ "study-gin/resk/apis/web"
 	_ "study-gin/resk/core/accounts"
 	_ "study-gin/resk/core/envelopes"
@@ -13,6 +15,8 @@ func init() {
 	infra.Register(&base.PropsStarter{})
 	infra.Register(&base.DbxDatabaseStarter{})
 	infra.Register(&base.ValidatorStarter{})
+	infra.Register(&base.GoRPCStarter{})
+	infra.Register(&gorpc.GoRpcApiStarter{})
 	infra.Register(&base.IrisServerStarter{})
 	infra.Register(&infra.WebApiStarter{})
 }
