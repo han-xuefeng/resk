@@ -3,6 +3,7 @@ package resk
 import (
 	_ "study-gin/resk/apis/web"
 	_ "study-gin/resk/core/accounts"
+	_ "study-gin/resk/core/envelopes"
 	"study-gin/resk/infra"
 	"study-gin/resk/infra/base"
 )
