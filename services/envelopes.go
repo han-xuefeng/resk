@@ -55,7 +55,7 @@ type RedEnvelopeReceiveDTO struct {
 
 type RedEnvelopeActivity struct {
 	RedEnvelopeGoodsDTO
-	Link      string `json:"link"` //活动链接
+	Link string `json:"link"` //活动链接
 }
 
 func (this *RedEnvelopeActivity) CopyTo(target *RedEnvelopeActivity) {
@@ -99,7 +99,7 @@ type RedEnvelopeGoodsDTO struct {
 }
 
 type RedEnvelopeItemDTO struct {
-	ItemNo       string           `json:"itemNo"`       //红包订单详情编号
+	ItemNo       string          `json:"itemNo"`       //红包订单详情编号
 	EnvelopeNo   string          `json:"envelopeNo"`   //订单编号 红包编号,红包唯一标识
 	RecvUsername string          `json:"recvUsername"` //红包接收者用户名称
 	RecvUserId   string          `json:"recvUserId"`   //红包接收者用户编号
