@@ -53,8 +53,7 @@ func (a *accountService) CreateAccount(dto services.AccountCreatedDTO) (*service
 		Status:       1,
 		Balance:      amount,
 	}
-	rdto, err := domain.Create(account)
-	return rdto,err
+	return domain.Create(account)
 }
 
 func (a *accountService) Transfer(dto services.AccountTransferDTO) (services.TransferedStatus, error) {

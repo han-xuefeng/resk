@@ -4,6 +4,8 @@ import (
 	"github.com/segmentio/ksuid"
 	"github.com/shopspring/decimal"
 	"github.com/sirupsen/logrus"
+
+	//"github.com/sirupsen/logrus"
 	. "github.com/smartystreets/goconvey/convey"
 	"strconv"
 	"study-gin/resk/services"
@@ -59,7 +61,7 @@ func TestRedEnvelopeService_Receive(t *testing.T) {
 		remainAmount := at.Amount
 		//3. 使用发送红包数量的人收红包
 		Convey("收普通红包", func() {
-			for i, account := range accounts {
+			for _, account := range accounts {
 				rcv := services.RedEnvelopeReceiveDTO{
 					EnvelopeNo:   at.EnvelopeNo,
 					RecvUserId:   account.UserId,
@@ -67,8 +69,6 @@ func TestRedEnvelopeService_Receive(t *testing.T) {
 					AccountNo:    account.AccountNo,
 				}
 				item, err := re.Receive(rcv)
-				logrus.Info(i)
-				logrus.Infof("%+v", item)
 				So(err, ShouldBeNil)
 				So(item, ShouldNotBeNil)
 				So(item.Amount, ShouldEqual, at.AmountOne)
@@ -77,7 +77,7 @@ func TestRedEnvelopeService_Receive(t *testing.T) {
 
 			}
 		})
-		//收碰运气红包，作为作业留给同学们来实现
+		////收碰运气红包，作为作业留给同学们来实现
 		goods.EnvelopeType = services.LuckyEnvelopeType
 		goods.Amount = decimal.NewFromFloat(18.8)
 		at, err = re.SendOut(goods)

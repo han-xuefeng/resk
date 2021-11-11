@@ -61,7 +61,7 @@ func (d *goodsDomain) Receive(
 		}
 		return err
 	})
-	return 
+	return d.item.ToDTO(), err
 }
 
 func (d *goodsDomain) transfer(
