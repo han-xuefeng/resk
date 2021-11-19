@@ -37,7 +37,7 @@ func (r *RefundExpiredJobStarter)Init(ctx infra.StarterContext)  {
 func (r *RefundExpiredJobStarter)Start(ctx infra.StarterContext)  {
 	go func() {
 		for {
-			c := r.ticker.C
+			c := <-r.ticker.C
 			log.Debug("过期红包退款开始。。。", c)
 			// 红包逻辑退款的代码
 		}
